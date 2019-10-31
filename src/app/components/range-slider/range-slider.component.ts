@@ -17,10 +17,10 @@ import {Subscription} from 'rxjs';
 })
 export class RangeSliderComponent implements OnInit, OnDestroy {
 	@Input()
-	min = 0;
+	min = 20;
 
 	@Input()
-	max = 100;
+	max = 150;
 
 	@Input()
 	default = 70;
@@ -39,13 +39,18 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 		return this.formControl.value;
 	}
 
+	get percentageValue() {
+		const range = this.max - this.min;
+		return Math.floor((this.value - this.min) * 100 / range);
+	}
+
 	get bgGradient() {
-		return `linear-gradient(90deg, #4834D4 ${this.value}%, #D2E2FF 0)`;
+		return `linear-gradient(90deg, #4834D4 ${this.percentageValue}%, #D2E2FF 0)`;
 	}
 
 	get offset() {
-		const offset = Math.floor(34 * (this.value / 100));
-		return `calc(${this.value}% - ${offset}px`;
+		const offset = Math.floor(34 * (this.percentageValue / 100));
+		return `calc(${this.percentageValue}% - ${offset}px`;
 	}
 
 	ngOnInit() {
