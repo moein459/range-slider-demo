@@ -20,16 +20,16 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 	id: string;
 
 	@Input()
-	min = 20;
+	min = 0;
 
 	@Input()
-	max = 150;
+	max = 100;
 
 	@Input()
 	default = 70;
 
 	@Input()
-	delay = 50;
+	delay = 75;
 
 	formControl = new FormControl([this.default]);
 
