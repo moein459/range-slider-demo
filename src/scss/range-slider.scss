@@ -49,12 +49,17 @@ $secondary_color: #D2E2FF;
 		background-color: $primary_color;
 		text-align: center;
 		border-radius: 100px;
-		top: -90px;
+		top: -40px;
 		margin-left: -4px;
 		z-index: -1;
-		transition: .2s ease-in-out transform;
+		transition: .2s ease-in-out transform, .25s ease-in-out top, .25s ease-in-out opacity;
 		opacity: 0;
 		user-select: none;
+
+		&.visible {
+			opacity: 1;
+			top: -80px;
+		}
 
 		&.move-right {
 			transform: translateX(-50px) rotate(-35deg);

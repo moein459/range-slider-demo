@@ -2,7 +2,7 @@
 	<div class="value-container"
 		 [ngClass]="{'move-right': directionState == 'right', 'move-left': directionState == 'left'}"
 		 [ngStyle]="{'left': offset | async}"
-		 [@sliderValueVisibility]="focused ? 'visible': 'hidden'">
+		 [class.visible]="focused">
 		<span class="value">{{value}}</span>
 	</div>
 	<input

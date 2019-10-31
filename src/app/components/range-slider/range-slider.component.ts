@@ -1,19 +1,11 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {debounceTime, delay, map, pairwise} from 'rxjs/operators';
-import {animate, state, style, transition, trigger} from '@angular/animations';
+import {debounceTime, delay, map, pairwise, startWith} from 'rxjs/operators';
 import {BehaviorSubject, Subscription} from 'rxjs';
 
 @Component({
 	selector: 'app-range-slider',
 	templateUrl: './range-slider.component.html',
-	animations: [
-		trigger('sliderValueVisibility', [
-			state('hidden', style({opacity: 0, top: '-35px'})),
-			state('visible', style({opacity: 1, top: '-85px'})),
-			transition('* <=> *', animate('.2s ease-in-out'))
-		])
-	]
 })
 export class RangeSliderComponent implements OnInit, OnDestroy {
 	@Input()
@@ -66,6 +58,7 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 
 		const sub2 = this.formControl.valueChanges
 			.pipe(
+				startWith(this.default),
 				pairwise(),
 				map(([prev, curr]) => curr > prev ? 'right' : 'left'))
 			.subscribe(value => {
