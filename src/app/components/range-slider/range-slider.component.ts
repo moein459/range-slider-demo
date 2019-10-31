@@ -1,7 +1,8 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {debounceTime, map, pairwise} from 'rxjs/operators';
 import {animate, state, style, transition, trigger} from '@angular/animations';
+import {Subscription} from 'rxjs';
 
 @Component({
 	selector: 'app-range-slider',
@@ -14,7 +15,7 @@ import {animate, state, style, transition, trigger} from '@angular/animations';
 		])
 	]
 })
-export class RangeSliderComponent implements OnInit {
+export class RangeSliderComponent implements OnInit, OnDestroy {
 	@Input()
 	min = 0;
 
@@ -28,6 +29,8 @@ export class RangeSliderComponent implements OnInit {
 
 	focused = false;
 	directionState: 'right' | 'left' | 'unset';
+
+	sub = new Subscription();
 
 	constructor() {
 	}
@@ -46,19 +49,22 @@ export class RangeSliderComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.formControl.valueChanges
+		const sub1 = this.formControl.valueChanges
 			.pipe(debounceTime(50))
 			.subscribe(value => {
 				this.directionState = 'unset';
 			});
 
-		this.formControl.valueChanges
+		const sub2 = this.formControl.valueChanges
 			.pipe(
 				pairwise(),
 				map(([prev, curr]) => curr > prev ? 'right' : 'left'))
 			.subscribe(value => {
 				this.directionState = value;
 			});
+
+		this.sub.add(sub1);
+		this.sub.add(sub2);
 	}
 
 	mouseDown() {
@@ -68,5 +74,9 @@ export class RangeSliderComponent implements OnInit {
 	mouseUp() {
 		this.directionState = 'unset';
 		this.focused = false;
+	}
+
+	ngOnDestroy(): void {
+		this.sub.unsubscribe();
 	}
 }

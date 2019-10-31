@@ -53,6 +53,7 @@ $secondary_color: #D2E2FF;
 		margin-left: -4px;
 		z-index: -1;
 		transition: .2s ease-in-out transform;
+		opacity: 0;
 		user-select: none;
 
 		&.move-right {
