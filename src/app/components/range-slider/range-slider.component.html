@@ -1,0 +1,19 @@
+<div class="range-container">
+	<div class="value-container"
+		 [ngClass]="{'move-right': directionState == 'right', 'move-left': directionState == 'left'}"
+		 [ngStyle]="{'left': offset}"
+		 [@sliderValue]="focused ? 'visible': 'hidden'">
+		<span class="value">{{value}}</span>
+	</div>
+	<input
+		type="range"
+		class="range"
+		(mousedown)="mouseDown()"
+		(mouseup)="mouseUp()"
+		[ngStyle]="{'background': bgGradient}"
+		[class.active]="focused"
+		[class.moving]="directionState != 'unset'"
+		[formControl]="formControl"
+		[min]="min"
+		[max]="max">
+</div>
