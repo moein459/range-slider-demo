@@ -56,14 +56,6 @@ $secondary_color: #D2E2FF;
 		opacity: 0;
 		user-select: none;
 
-		&.move-right {
-			transform: translateX(-50px) rotate(-35deg);
-		}
-
-		&.move-left {
-			transform: translateX(50px) rotate(35deg);
-		}
-
 		&:after {
 			content: '';
 			position: absolute;

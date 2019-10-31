@@ -1,8 +1,8 @@
 <div class="range-container">
 	<div class="value-container"
-		 [ngClass]="{'move-right': directionState == 'right', 'move-left': directionState == 'left'}"
 		 [ngStyle]="{'left': offset}"
-		 [@sliderValue]="focused ? 'visible': 'hidden'">
+		 [@sliderValueDirection]="directionState"
+		 [@sliderValueVisibility]="focused ? 'visible': 'hidden'">
 		<span class="value">{{value}}</span>
 	</div>
 	<input
@@ -16,6 +16,7 @@
 		[class.active]="focused"
 		[class.moving]="directionState != 'unset'"
 		[formControl]="formControl"
+		[id]="id"
 		[min]="min"
 		[max]="max">
 </div>

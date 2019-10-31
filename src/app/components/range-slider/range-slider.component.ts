@@ -8,14 +8,23 @@ import {Subscription} from 'rxjs';
 	selector: 'app-range-slider',
 	templateUrl: './range-slider.component.html',
 	animations: [
-		trigger('sliderValue', [
+		trigger('sliderValueVisibility', [
 			state('hidden', style({opacity: 0, top: '-35px'})),
 			state('visible', style({opacity: 1, top: '-85px'})),
+			transition('* <=> *', animate('.2s ease-in-out'))
+		]),
+		trigger('sliderValueDirection', [
+			state('unset', style({transform: 'translateX(0) rotate(0deg)'})),
+			state('right', style({transform: 'translateX(-50px) rotate(-35deg)'})),
+			state('left', style({transform: 'translateX(50px) rotate(35deg)'})),
 			transition('* <=> *', animate('.2s ease-in-out'))
 		])
 	]
 })
 export class RangeSliderComponent implements OnInit, OnDestroy {
+	@Input()
+	id: string;
+
 	@Input()
 	min = 20;
 
