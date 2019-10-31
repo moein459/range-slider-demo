@@ -10,6 +10,8 @@
 		class="range"
 		(mousedown)="mouseDown()"
 		(mouseup)="mouseUp()"
+		(touchstart)="mouseDown()"
+		(touchend)="mouseUp()"
 		[ngStyle]="{'background': bgGradient}"
 		[class.active]="focused"
 		[class.moving]="directionState != 'unset'"
