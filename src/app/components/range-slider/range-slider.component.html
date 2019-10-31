@@ -1,7 +1,7 @@
 <div class="range-container">
 	<div class="value-container"
+		 [ngClass]="{'move-right': directionState == 'right', 'move-left': directionState == 'left'}"
 		 [ngStyle]="{'left': offset}"
-		 [@sliderValueDirection]="directionState"
 		 [@sliderValueVisibility]="focused ? 'visible': 'hidden'">
 		<span class="value">{{value}}</span>
 	</div>
