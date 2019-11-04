@@ -1,9 +1,10 @@
 <div class="range-container">
-	<div class="value-container"
-		 [ngClass]="{'move-right': directionState == 'right', 'move-left': directionState == 'left'}"
-		 [ngStyle]="{'left': offset | async}"
+	<div class="value-wrapper"
+		 [ngStyle]="{'left': offset | async, 'transform': balloonTransformation}"
 		 [class.visible]="focused">
-		<span class="value">{{value}}</span>
+		<div class="value-container">
+			<span class="value">{{value}}</span>
+		</div>
 	</div>
 	<input
 		type="range"
@@ -14,7 +15,7 @@
 		(touchend)="mouseUp()"
 		[ngStyle]="{'background': bgGradient}"
 		[class.active]="focused"
-		[class.moving]="directionState != 'unset'"
+		[class.moving]="isMoving"
 		[formControl]="formControl"
 		[id]="id"
 		[min]="min"

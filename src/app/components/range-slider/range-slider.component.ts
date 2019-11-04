@@ -1,7 +1,7 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {debounceTime, delay, map, pairwise, startWith} from 'rxjs/operators';
-import {BehaviorSubject, Subscription} from 'rxjs';
+import {BehaviorSubject, interval, Subscription} from 'rxjs';
 
 @Component({
 	selector: 'app-range-slider',
@@ -26,15 +26,14 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 	formControl = new FormControl([this.default]);
 
 	focused = false;
-	directionState: 'right' | 'left' | 'unset';
+	directionState: 'right' | 'left' | 'unset' = 'unset';
 
 	private offset$ = new BehaviorSubject<string>(this.calculateOffset());
 	offset = this.offset$.asObservable().pipe(delay(this.delay));
 
-	sub = new Subscription();
+	degreeAmount = 0;
 
-	constructor() {
-	}
+	sub = new Subscription();
 
 	get value() {
 		return this.formControl.value;
@@ -45,24 +44,40 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 		return Math.floor((this.value - this.min) * 100 / range);
 	}
 
+	get isMoving() {
+		return this.focused && this.directionState !== 'unset';
+	}
+
+	get scale() {
+		const n = Math.floor(this.percentageValue / 3) / 100;
+		return n ? (n + '').split('.')[1] : 0;
+	}
+
+	get degree() {
+		return Math.round(this.degreeAmount / 10 * 15);
+	}
+
 	get bgGradient() {
 		return `linear-gradient(90deg, #4834D4 ${this.percentageValue}%, #D2E2FF 0)`;
 	}
 
+	get balloonTransformation() {
+		return `scale(1.${this.scale}) rotate(${this.degree}deg)`;
+	}
+
 	ngOnInit() {
-		const sub1 = this.formControl.valueChanges
-			.pipe(debounceTime(this.delay))
-			.subscribe(() => {
-				this.directionState = 'unset';
-			});
+		const sub1 = this.formControl.valueChanges.pipe(debounceTime(50)).subscribe(() => {
+			this.directionState = 'unset';
+		});
 
 		const sub2 = this.formControl.valueChanges
 			.pipe(
 				startWith(this.default),
 				pairwise(),
-				map(([prev, curr]) => curr > prev ? 'right' : 'left'))
-			.subscribe(value => {
+				map(([curr, prev]) => curr > prev ? 'left' : 'right'))
+			.subscribe((value) => {
 				this.directionState = value;
+				this.increaseBalloonDegree();
 				this.offset$.next(this.calculateOffset());
 			});
 
@@ -71,7 +86,7 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 	}
 
 	calculateOffset() {
-		const offset = Math.floor(34 * (this.percentageValue / 100));
+		const offset = Math.floor(19 * (this.percentageValue / 100));
 		return `calc(${this.percentageValue}% - ${offset}px)`;
 	}
 
@@ -82,6 +97,20 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 	mouseUp() {
 		this.directionState = 'unset';
 		this.focused = false;
+	}
+
+	increaseBalloonDegree() {
+		this.degreeAmount += this.directionState === 'right' ? -1 : 1;
+		this.decreaseBalloonDegree();
+	}
+
+	decreaseBalloonDegree() {
+		const sub = interval(100).pipe(delay(100)).subscribe(value1 => {
+			if (this.isMoving && this.degreeAmount < 1 || this.degreeAmount > -1 || this.directionState == 'unset') {
+				sub.unsubscribe();
+			}
+			this.degreeAmount += this.degreeAmount >= 1 ? -1 : 1;
+		});
 	}
 
 	ngOnDestroy(): void {
