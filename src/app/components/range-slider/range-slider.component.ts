@@ -54,7 +54,7 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 	}
 
 	get degree() {
-		return Math.round(this.degreeAmount / 10 * 20);
+		return Math.round(this.degreeAmount / 10 * 15);
 	}
 
 	get bgGradient() {
