@@ -54,7 +54,7 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 	}
 
 	get degree() {
-		return Math.round(this.degreeAmount / 10 * 15);
+		return Math.round(this.degreeAmount / 10 * 20);
 	}
 
 	get bgGradient() {
@@ -105,8 +105,8 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 	}
 
 	decreaseBalloonDegree() {
-		const sub = interval(100).pipe(delay(100)).subscribe(value1 => {
-			if (this.isMoving && this.degreeAmount < 1 || this.degreeAmount > -1 || this.directionState == 'unset') {
+		const sub = interval(this.delay).pipe(delay(this.delay)).subscribe(() => {
+			if (this.degreeAmount < 1 || this.degreeAmount > -1) {
 				sub.unsubscribe();
 			}
 			this.degreeAmount += this.degreeAmount >= 1 ? -1 : 1;

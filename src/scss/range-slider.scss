@@ -14,7 +14,6 @@ $secondary_color: #D2E2FF;
 			outline: none;
 		}
 
-
 		&::-webkit-slider-thumb {
 			-webkit-appearance: none;
 			appearance: none;
@@ -47,7 +46,7 @@ $secondary_color: #D2E2FF;
 	.value-wrapper {
 		top: 30px;
 		position: absolute;
-		margin-left: 10px;
+		margin-left: 8px;
 		opacity: 0;
 		z-index: -1;
 		user-select: none;
