@@ -49,12 +49,12 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 	}
 
 	get scale() {
-		const n = Math.floor(this.percentageValue / 3) / 100;
+		const n = Math.floor(this.percentageValue / 2.75) / 100;
 		return n ? (n + '').split('.')[1] : 0;
 	}
 
 	get degree() {
-		return Math.round(this.degreeAmount / 10 * 15);
+		return Math.round(this.degreeAmount * 2.5);
 	}
 
 	get bgGradient() {
