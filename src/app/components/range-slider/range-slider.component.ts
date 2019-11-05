@@ -1,7 +1,13 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {debounceTime, delay, map, pairwise, startWith} from 'rxjs/operators';
-import {BehaviorSubject, interval, Subscription} from 'rxjs';
+import {BehaviorSubject, Subject, Subscription, interval} from 'rxjs';
+import {debounceTime, delay, map, pairwise, startWith, takeUntil} from 'rxjs/operators';
+
+enum DirectionState {
+	Unset,
+	Right,
+	Left
+}
 
 @Component({
 	selector: 'app-range-slider',
@@ -26,7 +32,9 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 	formControl = new FormControl([this.default]);
 
 	focused = false;
-	directionState: 'right' | 'left' | 'unset' = 'unset';
+
+	directionState$ = new BehaviorSubject<DirectionState>(DirectionState.Unset);
+	directionChange$ = new Subject();
 
 	private offset$ = new BehaviorSubject<string>(this.calculateOffset());
 	offset = this.offset$.asObservable().pipe(delay(this.delay));
@@ -44,17 +52,21 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 		return Math.floor((this.value - this.min) * 100 / range);
 	}
 
+	get directionState() {
+		return this.directionState$.getValue();
+	}
+
 	get isMoving() {
-		return this.focused && this.directionState !== 'unset';
+		return this.focused && this.directionState !== DirectionState.Unset;
 	}
 
 	get scale() {
-		const n = Math.floor(this.percentageValue / 2.75) / 100;
-		return n ? (n + '').split('.')[1] : 0;
+		const scale = Math.floor(this.percentageValue / 3) / 100;
+		return scale ? (scale + '').split('.')[1] : 0;
 	}
 
 	get degree() {
-		return Math.round(this.degreeAmount * 2.5);
+		return Math.floor(this.degreeAmount * 2.5);
 	}
 
 	get bgGradient() {
@@ -67,17 +79,21 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 
 	ngOnInit() {
 		const sub1 = this.formControl.valueChanges.pipe(debounceTime(50)).subscribe(() => {
-			this.directionState = 'unset';
+			this.directionState$.next(DirectionState.Unset);
 		});
 
 		const sub2 = this.formControl.valueChanges
 			.pipe(
 				startWith(this.default),
 				pairwise(),
-				map(([curr, prev]) => curr > prev ? 'left' : 'right'))
+				map(([curr, prev]) => curr > prev ? DirectionState.Left : DirectionState.Right))
 			.subscribe((value) => {
-				this.directionState = value;
+				if (this.directionState !== value) {
+					this.directionChange$.next(value);
+					this.degreeAmount = 0;
+				}
 				this.increaseBalloonDegree();
+				this.directionState$.next(value);
 				this.offset$.next(this.calculateOffset());
 			});
 
@@ -86,7 +102,7 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 	}
 
 	calculateOffset() {
-		const offset = Math.floor(19 * (this.percentageValue / 100));
+		const offset = Math.floor(18 * (this.percentageValue / 100));
 		return `calc(${this.percentageValue}% - ${offset}px)`;
 	}
 
@@ -95,17 +111,17 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 	}
 
 	mouseUp() {
-		this.directionState = 'unset';
+		this.directionState$.next(DirectionState.Unset);
 		this.focused = false;
 	}
 
 	increaseBalloonDegree() {
-		this.degreeAmount += this.directionState === 'right' ? -1 : 1;
+		this.degreeAmount += this.directionState === DirectionState.Right ? -1 : 1;
 		this.decreaseBalloonDegree();
 	}
 
 	decreaseBalloonDegree() {
-		const sub = interval(this.delay).pipe(delay(this.delay)).subscribe(() => {
+		const sub = interval(this.delay).pipe(delay(this.delay), takeUntil(this.directionChange$)).subscribe(() => {
 			if (this.degreeAmount < 1 || this.degreeAmount > -1) {
 				sub.unsubscribe();
 			}
