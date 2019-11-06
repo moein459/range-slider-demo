@@ -1,7 +1,7 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {BehaviorSubject, Subject, Subscription, interval} from 'rxjs';
-import {debounceTime, delay, map, pairwise, startWith, takeUntil} from 'rxjs/operators';
+import {debounceTime, delay, map, pairwise, startWith, takeUntil, takeWhile} from 'rxjs/operators';
 
 enum DirectionState {
 	Unset,
@@ -36,7 +36,7 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 	directionState$ = new BehaviorSubject<DirectionState>(DirectionState.Unset);
 	directionChange$ = new Subject();
 
-	private offset$ = new BehaviorSubject<string>(this.calculateOffset());
+	offset$ = new BehaviorSubject<string>(this.calculateOffset());
 	offset = this.offset$.asObservable().pipe(delay(this.delay));
 
 	degreeAmount = 0;
@@ -78,7 +78,9 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit() {
-		const sub1 = this.formControl.valueChanges.pipe(debounceTime(50)).subscribe(() => {
+		const sub1 = this.formControl.valueChanges
+			.pipe(debounceTime(50))
+			.subscribe(() => {
 			this.directionState$.next(DirectionState.Unset);
 		});
 
@@ -121,12 +123,15 @@ export class RangeSliderComponent implements OnInit, OnDestroy {
 	}
 
 	decreaseBalloonDegree() {
-		const sub = interval(this.delay).pipe(delay(this.delay), takeUntil(this.directionChange$)).subscribe(() => {
-			if (this.degreeAmount < 1 || this.degreeAmount > -1) {
-				sub.unsubscribe();
-			}
-			this.degreeAmount += this.degreeAmount >= 1 ? -1 : 1;
-		});
+		const sub = interval(this.delay)
+			.pipe(
+				delay(this.delay),
+				takeUntil(this.directionChange$),
+				takeWhile(() => this.degreeAmount !== 0))
+			.subscribe(() => {
+				if (this.degreeAmount < 1 || this.degreeAmount > -1) { sub.unsubscribe(); }
+				this.degreeAmount += this.degreeAmount >= 1 ? -1 : 1;
+			});
 	}
 
 	ngOnDestroy(): void {
